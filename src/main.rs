@@ -3,6 +3,7 @@ use std::io::Write;
 use crate::color::Color;
 
 mod color;
+mod ray;
 mod vec3;
 
 fn main() {
