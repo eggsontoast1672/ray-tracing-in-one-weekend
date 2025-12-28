@@ -57,12 +57,16 @@ impl Hittable for Sphere {
             }
         }
 
+        // Filling up the hit record with information. This is not a good comment.
         let hit_point = ray.at(root);
-
-        Some(HitRecord {
+        let mut record = HitRecord {
             point: hit_point,
             normal: (hit_point - self.center) / self.radius,
             time: root,
-        })
+            front_face: false,
+        };
+
+        record.set_face_normal(ray, record.normal);
+        Some(record)
     }
 }

@@ -1,42 +1,23 @@
 use std::io::Write;
+use std::rc::Rc;
 
 use crate::color::Color;
+use crate::hittable::Hittable;
+use crate::hittable_list::HittableList;
 use crate::ray::Ray;
+use crate::sphere::Sphere;
 use crate::vec3::{Point3, Vec3};
 
 mod color;
 mod hittable;
+mod hittable_list;
 mod ray;
 mod sphere;
 mod vec3;
 
-/// Check if a ray intersects a sphere.
-///
-/// This function returns the value of t for which the given ray is intersecting the sphere with
-/// given center and radius. If there are multiple such values of t, the smallest one is selected,
-/// e.g. the first intersection. A negative return value signifies that there is no intersection.
-fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> f64 {
-    let oc = center - ray.origin;
-    let a = ray.direction.length_squared();
-    let h = ray.direction.dot(oc);
-    let c = oc.length_squared() - radius.powi(2);
-    let discriminant = h.powi(2) - a * c;
-
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (h - discriminant.sqrt()) / a
-    }
-}
-
-fn ray_color(ray: Ray) -> Color {
-    let center = Point3::new(0.0, 0.0, -1.0);
-    let t = hit_sphere(center, 0.5, ray);
-    if t > 0.0 {
-        // This is the vector pointing outward away from the center toward the point of
-        // intersection.
-        let n = Vec3::unit_vector(ray.at(t) - center);
-        return Color::new(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5;
+fn ray_color(ray: Ray, world: &dyn Hittable) -> Color {
+    if let Some(rec) = world.hit(ray, 0.0, f64::INFINITY) {
+        return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
     }
 
     let unit_direction = ray.direction.unit_vector();
@@ -74,6 +55,13 @@ fn main() {
         CAMERA_CENTER - Vec3::new(0.0, 0.0, FOCAL_LENGTH) - VIEWPORT_U / 2.0 - VIEWPORT_V / 2.0;
     let pixel00_loc = viewport_upper_left + (pixel_delta_u + pixel_delta_v) * 0.5;
 
+    let world = {
+        let mut world = HittableList::new();
+        world.add(Rc::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
+        world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
+        world
+    };
+
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
 
     for j in 0..IMAGE_HEIGHT {
@@ -83,10 +71,11 @@ fn main() {
         for i in 0..IMAGE_WIDTH {
             let pixel_center =
                 pixel00_loc + (pixel_delta_u * i as f64) + (pixel_delta_v * j as f64);
-            let ray_direction = pixel_center - CAMERA_CENTER;
-            let r = Ray::new(CAMERA_CENTER, ray_direction);
 
-            let pixel_color = ray_color(r);
+            let ray_direction = pixel_center - CAMERA_CENTER;
+            let ray = Ray::new(CAMERA_CENTER, ray_direction);
+
+            let pixel_color = ray_color(ray, &world);
             color::write_color(std::io::stdout(), pixel_color);
         }
     }
