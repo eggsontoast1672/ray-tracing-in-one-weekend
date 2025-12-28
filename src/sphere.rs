@@ -1,5 +1,7 @@
 use std::cmp::Ordering;
 
+use raytracing::math::interval::Interval;
+
 use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 use crate::vec3::Point3;
@@ -34,7 +36,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: Ray, interval: Interval) -> Option<HitRecord> {
         let oc = self.center - ray.origin;
         let a = ray.direction.length_squared();
         let h = ray.direction.dot(oc);
@@ -50,9 +52,9 @@ impl Hittable for Sphere {
         // bounds we desire.
         let sqrtd = discriminant.sqrt();
         let mut root = (h - sqrtd) / a;
-        if root <= t_min || t_max <= root {
+        if !interval.surrounds(root) {
             root = (h + sqrtd) / a;
-            if root <= t_min || t_min <= root {
+            if !interval.surrounds(root) {
                 return None;
             }
         }

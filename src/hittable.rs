@@ -1,3 +1,5 @@
+use raytracing::math::interval::Interval;
+
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
 
@@ -43,5 +45,5 @@ pub trait Hittable {
     /// This method shoots the given ray at the shape between the given time values and returns
     /// information about a potential hit. If there was no intersection, this method returns
     /// [`None`]. If there was, a [`Some`] variant is returned holding information about the hit.
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: Ray, interval: Interval) -> Option<HitRecord>;
 }

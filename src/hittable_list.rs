@@ -1,5 +1,7 @@
 use std::rc::Rc;
 
+use raytracing::math::interval::Interval;
+
 use crate::hittable::{HitRecord, Hittable};
 use crate::ray::Ray;
 
@@ -35,16 +37,17 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: Ray, interval: Interval) -> Option<HitRecord> {
         // Casting a ray at the scene, we want to know the very first thing it would hit.
 
         let mut closest_hit: Option<HitRecord> = None;
         for object in &self.objects {
-            let closest_t = closest_hit.map(|rec| rec.time).unwrap_or(t_max);
-            
+            let closest_t = closest_hit.map(|rec| rec.time).unwrap_or(interval.max);
+            let smallest_interval = Interval::new(interval.min, closest_t);
+
             // There is no need to trace the ray further than this value of t, since it already hit
             // something there. We need only check to see if it hit something closer.
-            if let Some(hit_info) = object.hit(ray, t_min, closest_t) {
+            if let Some(hit_info) = object.hit(ray, smallest_interval) {
                 closest_hit = Some(hit_info);
             }
         }

@@ -1,6 +1,8 @@
 use std::io::Write;
 use std::rc::Rc;
 
+use raytracing::math::interval::Interval;
+
 use crate::color::Color;
 use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
@@ -16,7 +18,7 @@ mod sphere;
 mod vec3;
 
 fn ray_color(ray: Ray, world: &dyn Hittable) -> Color {
-    if let Some(rec) = world.hit(ray, 0.0, f64::INFINITY) {
+    if let Some(rec) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {
         return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
     }
 
@@ -61,6 +63,8 @@ fn main() {
         world.add(Rc::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
         world
     };
+
+    eprintln!("DEBUG: {}", f64::NEG_INFINITY < f64::INFINITY);
 
     println!("P3\n{} {}\n255", IMAGE_WIDTH, IMAGE_HEIGHT);
 
