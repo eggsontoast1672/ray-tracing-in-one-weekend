@@ -1,7 +1,7 @@
 #!/bin/sh
 
-window_width=800
-window_height=800
+window_width=1600
+window_height=900
 
 cargo run > image.ppm
 
@@ -10,4 +10,5 @@ cargo run > image.ppm
 feh \
   --geometry ${window_width}x${window_height} \
   --auto-zoom \
+  --force-aliasing \
   image.ppm

@@ -8,8 +8,27 @@ mod color;
 mod ray;
 mod vec3;
 
-fn ray_color(r: &Ray) -> Color {
-    let unit_direction = r.get_direction().unit_vector();
+/// Check if a ray intersects a sphere.
+///
+/// This function returns true if the given ray intersects the sphere with given center and radius
+/// for absolutely any value of t, and false otherwise. Since the return value is only a boolean,
+/// this function is not that useful for rendering things that look nice.
+fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> bool {
+    let oc = center - ray.origin;
+    let a = ray.direction.length_squared();
+    let b = ray.direction.dot(oc) * -2.0;
+    let c = oc.length_squared() - radius.powi(2);
+    let discriminant = b.powi(2) - 4.0 * a * c;
+
+    discriminant >= 0.0
+}
+
+fn ray_color(ray: Ray) -> Color {
+    if hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
+        return Color::new(1.0, 0.0, 0.0);
+    }
+
+    let unit_direction = ray.direction.unit_vector();
     let a = (unit_direction.y() + 1.0) * 0.5;
     Color::new(1.0, 1.0, 1.0) * (1.0 - a) + Color::new(0.5, 0.7, 1.0) * a
 }
@@ -56,7 +75,7 @@ fn main() {
             let ray_direction = pixel_center - CAMERA_CENTER;
             let r = Ray::new(CAMERA_CENTER, ray_direction);
 
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(r);
             color::write_color(std::io::stdout(), pixel_color);
         }
     }

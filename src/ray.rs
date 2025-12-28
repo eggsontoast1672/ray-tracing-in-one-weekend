@@ -5,9 +5,10 @@ use crate::vec3::{Point3, Vec3};
 /// This structure holds all of the information necessary to cast a ray. The origin is the start of
 /// the ray, and the direction is that along which the ray travels. The idea is to compute the path
 /// of the ray at a certain point in time using a linear equation in these two factors.
+#[derive(Clone, Copy)]
 pub struct Ray {
-    origin: Point3,
-    direction: Vec3,
+    pub origin: Point3,
+    pub direction: Vec3,
 }
 
 impl Ray {
@@ -25,16 +26,6 @@ impl Ray {
     /// Create a ray with specified origin and direction.
     pub const fn new(origin: Point3, direction: Vec3) -> Self {
         Self { origin, direction }
-    }
-
-    /// Get the ray's origin.
-    pub const fn get_origin(&self) -> Point3 {
-        self.origin
-    }
-
-    /// Get the ray's direction.
-    pub const fn get_direction(&self) -> Vec3 {
-        self.direction
     }
 
     /// Compute the ray's position at a given time.
