@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
 use raytracing::math::interval::Interval;
+use raytracing::math::ray::Ray;
 
 use crate::hittable::{HitRecord, Hittable};
-use crate::ray::Ray;
 
 /// A simple wrapper structure for a list of hittable objects.
 pub struct HittableList {

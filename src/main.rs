@@ -2,20 +2,18 @@ use std::io::Write;
 use std::rc::Rc;
 
 use raytracing::math::interval::Interval;
+use raytracing::math::ray::Ray;
+use raytracing::math::vec3::{Point3, Vec3};
 
 use crate::color::Color;
 use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
-use crate::ray::Ray;
 use crate::sphere::Sphere;
-use crate::vec3::{Point3, Vec3};
 
 mod color;
 mod hittable;
 mod hittable_list;
-mod ray;
 mod sphere;
-mod vec3;
 
 fn ray_color(ray: Ray, world: &dyn Hittable) -> Color {
     if let Some(rec) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {

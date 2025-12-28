@@ -1,4 +1,4 @@
-use crate::vec3::Vec3;
+use raytracing::math::vec3::Vec3;
 
 /// Type alias for colors as vectors.
 ///
