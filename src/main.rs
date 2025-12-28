@@ -5,7 +5,9 @@ use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
 
 mod color;
+mod hittable;
 mod ray;
+mod sphere;
 mod vec3;
 
 /// Check if a ray intersects a sphere.
@@ -16,14 +18,14 @@ mod vec3;
 fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> f64 {
     let oc = center - ray.origin;
     let a = ray.direction.length_squared();
-    let b = ray.direction.dot(oc) * -2.0;
+    let h = ray.direction.dot(oc);
     let c = oc.length_squared() - radius.powi(2);
-    let discriminant = b.powi(2) - 4.0 * a * c;
+    let discriminant = h.powi(2) - a * c;
 
     if discriminant < 0.0 {
         -1.0
     } else {
-        (-b - discriminant.sqrt()) / (2.0 * a)
+        (h - discriminant.sqrt()) / a
     }
 }
 

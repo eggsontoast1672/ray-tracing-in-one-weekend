@@ -7,6 +7,8 @@ bit better. A side effect of that is that the project is better documented!
 
 [1]: https://raytracing.github.io/books/RayTracingInOneWeekend.html
 
+Note to self: I left off at chapter 6.4, Front Faces Versus Back Faces.
+
 ## The PPM Format
 
 The PPM image format is a simple text or binary based format for storing image
