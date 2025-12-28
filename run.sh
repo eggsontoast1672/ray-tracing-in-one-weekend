@@ -3,7 +3,7 @@
 window_width=1600
 window_height=900
 
-cargo run > image.ppm
+cargo run --quiet > image.ppm
 
 # These settings make the window big enough that we can see what the renderer
 # drew without squinting.

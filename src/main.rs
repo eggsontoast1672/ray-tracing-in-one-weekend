@@ -10,26 +10,35 @@ mod vec3;
 
 /// Check if a ray intersects a sphere.
 ///
-/// This function returns true if the given ray intersects the sphere with given center and radius
-/// for absolutely any value of t, and false otherwise. Since the return value is only a boolean,
-/// this function is not that useful for rendering things that look nice.
-fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> bool {
+/// This function returns the value of t for which the given ray is intersecting the sphere with
+/// given center and radius. If there are multiple such values of t, the smallest one is selected,
+/// e.g. the first intersection. A negative return value signifies that there is no intersection.
+fn hit_sphere(center: Point3, radius: f64, ray: Ray) -> f64 {
     let oc = center - ray.origin;
     let a = ray.direction.length_squared();
     let b = ray.direction.dot(oc) * -2.0;
     let c = oc.length_squared() - radius.powi(2);
     let discriminant = b.powi(2) - 4.0 * a * c;
 
-    discriminant >= 0.0
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (-b - discriminant.sqrt()) / (2.0 * a)
+    }
 }
 
 fn ray_color(ray: Ray) -> Color {
-    if hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
-        return Color::new(1.0, 0.0, 0.0);
+    let center = Point3::new(0.0, 0.0, -1.0);
+    let t = hit_sphere(center, 0.5, ray);
+    if t > 0.0 {
+        // This is the vector pointing outward away from the center toward the point of
+        // intersection.
+        let n = Vec3::unit_vector(ray.at(t) - center);
+        return Color::new(n.x + 1.0, n.y + 1.0, n.z + 1.0) * 0.5;
     }
 
     let unit_direction = ray.direction.unit_vector();
-    let a = (unit_direction.y() + 1.0) * 0.5;
+    let a = (unit_direction.y + 1.0) * 0.5;
     Color::new(1.0, 1.0, 1.0) * (1.0 - a) + Color::new(0.5, 0.7, 1.0) * a
 }
 

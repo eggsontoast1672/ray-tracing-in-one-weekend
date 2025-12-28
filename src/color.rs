@@ -21,9 +21,9 @@ pub fn write_color<Writer>(mut out: Writer, pixel_color: Color)
 where
     Writer: std::io::Write,
 {
-    let r = pixel_color.x();
-    let g = pixel_color.y();
-    let b = pixel_color.z();
+    let r = pixel_color.x;
+    let g = pixel_color.y;
+    let b = pixel_color.z;
 
     let rbyte = (255.0 * r) as u8;
     let gbyte = (255.0 * g) as u8;
