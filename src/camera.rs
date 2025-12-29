@@ -3,6 +3,7 @@ use std::io::Write;
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
 use raytracing::math::vec3::{Point3, Vec3};
+use raytracing::ui;
 
 use crate::color::{self, Color};
 use crate::hittable::Hittable;
@@ -26,8 +27,7 @@ impl Camera {
         println!("P3\n{} {}\n255", self.image_width, self.image_height);
 
         for j in 0..self.image_height {
-            eprint!("\rScanlines remaining: {:<3}", self.image_height - j);
-            std::io::stderr().flush().unwrap();
+            ui::update(j as f64 / self.image_height as f64);
 
             for i in 0..self.image_width {
                 let mut pixel_color = Color::zero();
@@ -39,8 +39,7 @@ impl Camera {
             }
         }
 
-        // These spaces are needed so that none of the characters from "Scanlines remaining" message are left behind.
-        eprintln!("\rDone.                   ");
+        ui::finish();
     }
 
     fn initialize(&mut self) {

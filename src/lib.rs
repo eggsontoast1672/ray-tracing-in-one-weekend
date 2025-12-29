@@ -1,4 +1,5 @@
 pub mod math;
+pub mod ui;
 
 /// Return a random real in `[0, 1)`.
 pub fn random_f64() -> f64 {

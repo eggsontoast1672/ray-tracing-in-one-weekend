@@ -11,4 +11,4 @@ feh \
   --geometry ${window_width}x${window_height} \
   --auto-zoom \
   --force-aliasing \
-  image.ppm
+  image.ppm &
