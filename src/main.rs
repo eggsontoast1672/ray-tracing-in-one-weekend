@@ -22,6 +22,6 @@ fn main() {
 
     let mut camera = Camera::default();
     camera.aspect_ratio = 16.0 / 9.0;
-    camera.image_width = 854;
+    camera.image_width = 400;
     camera.render(&world);
 }

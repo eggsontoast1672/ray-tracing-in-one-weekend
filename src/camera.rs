@@ -10,7 +10,9 @@ use crate::hittable::Hittable;
 pub struct Camera {
     pub aspect_ratio: f64,
     pub image_width: i32,
+    pub samples_per_pixel: i32,
     image_height: i32,
+    pixel_samples_scale: f64,
     center: Point3,
     pixel00_loc: Point3,
     pixel_delta_u: Vec3,
@@ -28,15 +30,12 @@ impl Camera {
             std::io::stderr().flush().unwrap();
 
             for i in 0..self.image_width {
-                let pixel_center = self.pixel00_loc
-                    + (self.pixel_delta_u * i as f64)
-                    + (self.pixel_delta_v * j as f64);
-
-                let ray_direction = pixel_center - self.center;
-                let ray = Ray::new(self.center, ray_direction);
-
-                let pixel_color = self.ray_color(ray, world);
-                color::write_color(std::io::stdout(), pixel_color);
+                let mut pixel_color = Color::zero();
+                for _sample in 0..self.samples_per_pixel {
+                    let ray = self.get_ray(i, j);
+                    pixel_color += self.ray_color(ray, world);
+                }
+                color::write_color(std::io::stdout(), pixel_color * self.pixel_samples_scale);
             }
         }
 
@@ -51,6 +50,8 @@ impl Camera {
         } else {
             self.image_height
         };
+
+        self.pixel_samples_scale = 1.0 / self.samples_per_pixel as f64;
 
         self.center = Point3::zero();
 
@@ -69,6 +70,26 @@ impl Camera {
         self.pixel00_loc = viewport_upper_left + (self.pixel_delta_u + self.pixel_delta_v) * 0.5;
     }
 
+    fn get_ray(&self, i: i32, j: i32) -> Ray {
+        let offset = self.sample_square();
+        let pixel_sample = self.pixel00_loc
+            + (self.pixel_delta_u * (i as f64 + offset.x))
+            + (self.pixel_delta_v * (j as f64 + offset.y));
+
+        let ray_origin = self.center;
+        let ray_direction = pixel_sample - ray_origin;
+
+        Ray::new(ray_origin, ray_direction)
+    }
+
+    fn sample_square(&self) -> Vec3 {
+        Vec3::new(
+            raytracing::random_f64() - 0.5,
+            raytracing::random_f64() - 0.5,
+            0.0,
+        )
+    }
+
     fn ray_color(&self, ray: Ray, world: &dyn Hittable) -> Color {
         if let Some(rec) = world.hit(ray, Interval::new(0.0, f64::INFINITY)) {
             return (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5;
@@ -85,7 +106,9 @@ impl Default for Camera {
         Self {
             aspect_ratio: 1.0,
             image_width: 100,
+            samples_per_pixel: 10,
             image_height: 0,
+            pixel_samples_scale: 0.0,
             center: Point3::zero(),
             pixel00_loc: Point3::zero(),
             pixel_delta_u: Vec3::zero(),

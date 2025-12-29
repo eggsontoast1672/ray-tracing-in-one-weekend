@@ -14,6 +14,20 @@ pub struct Interval {
 }
 
 impl Interval {
+    /// The empty interval.
+    ///
+    /// This interval contains no number. The bounds are not defined, so no part of the program
+    /// should depend on them. However, one can depend on the fact that the lower bound of this
+    /// interval is greater than its upper bound.
+    pub const EMPTY: Interval = Interval::new(f64::INFINITY, f64::NEG_INFINITY);
+
+    /// The universal interval.
+    ///
+    /// This interval contains every number. Since the lower bound must in particular be less than
+    /// or equal to every number, the only reasonable value is [`f64::INFINITY`]. Similarly, the
+    /// only sensical upper bound is [`f64::INFINITY`].
+    pub const UNIVERSE: Interval = Interval::new(f64::NEG_INFINITY, f64::INFINITY);
+
     /// Create a new interval with specified bounds.
     pub const fn new(min: f64, max: f64) -> Self {
         Self { min, max }
@@ -46,17 +60,17 @@ impl Interval {
         self.min < x && x < self.max
     }
 
-    /// The empty interval.
+    /// Clamp a number on this interval.
     ///
-    /// This interval contains no number. The bounds are not defined, so no part of the program
-    /// should depend on them. However, one can depend on the fact that the lower bound of this
-    /// interval is greater than its upper bound.
-    pub const EMPTY: Interval = Interval::new(f64::INFINITY, f64::NEG_INFINITY);
-
-    /// The universal interval.
-    ///
-    /// This interval contains every number. Since the lower bound must in particular be less than
-    /// or equal to every number, the only reasonable value is [`f64::INFINITY`]. Similarly, the
-    /// only sensical upper bound is [`f64::INFINITY`].
-    pub const UNIVERSE: Interval = Interval::new(f64::NEG_INFINITY, f64::INFINITY);
+    /// If `x` is contained by this interval, then the method returns `x`. If it lies outside the
+    /// interval below, the lower bound is returned. Otherwise, if it lies outside the interval
+    /// above, the upper bound is returned. If the interval has negative size, the output of this
+    /// method is not specified.
+    pub fn clamp(&self, x: f64) -> f64 {
+        match (self.min <= x, x <= self.max) {
+            (false, _) => self.min,
+            (true, false) => self.max,
+            (true, true) => x,
+        }
+    }
 }

@@ -94,6 +94,14 @@ impl std::ops::Add for Vec3 {
     }
 }
 
+impl std::ops::AddAssign for Vec3 {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+        self.z += rhs.z;
+    }
+}
+
 impl std::ops::Sub for Vec3 {
     type Output = Self;
 

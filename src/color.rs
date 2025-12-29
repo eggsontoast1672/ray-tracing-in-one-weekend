@@ -1,3 +1,4 @@
+use raytracing::math::interval::Interval;
 use raytracing::math::vec3::Vec3;
 
 /// Type alias for colors as vectors.
@@ -25,9 +26,11 @@ where
     let g = pixel_color.y;
     let b = pixel_color.z;
 
-    let rbyte = (255.0 * r) as u8;
-    let gbyte = (255.0 * g) as u8;
-    let bbyte = (255.0 * b) as u8;
+    const INTENSITY: Interval = Interval::new(0.0, 1.0);
+
+    let rbyte = (255.0 * INTENSITY.clamp(r)) as u8;
+    let gbyte = (255.0 * INTENSITY.clamp(g)) as u8;
+    let bbyte = (255.0 * INTENSITY.clamp(b)) as u8;
 
     writeln!(out, "{} {} {}", rbyte, gbyte, bbyte).unwrap();
 }
