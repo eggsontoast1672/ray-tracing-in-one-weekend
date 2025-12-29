@@ -10,6 +10,8 @@ mod camera;
 mod color;
 mod hittable;
 mod hittable_list;
+mod image;
+mod renderer;
 mod sphere;
 
 fn main() {

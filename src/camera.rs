@@ -1,5 +1,3 @@
-use std::io::Write;
-
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
 use raytracing::math::vec3::{Point3, Vec3};
@@ -7,6 +5,12 @@ use raytracing::ui;
 
 use crate::color::{self, Color};
 use crate::hittable::Hittable;
+
+// Relevant information for the camera:
+//
+// - Position in the world
+// - Focal length
+// - Viewport dimensions
 
 pub struct Camera {
     pub aspect_ratio: f64,
