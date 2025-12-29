@@ -33,6 +33,61 @@ impl Vec3 {
         Vec3 { x, y, z }
     }
 
+    /// Generate a vector with random direction and magnitude.
+    pub fn random() -> Self {
+        Vec3::new(
+            crate::random_f64(),
+            crate::random_f64(),
+            crate::random_f64(),
+        )
+    }
+
+    /// Generate a vector with random direction and magniture whose components are guaranteed to
+    /// lie betweem the bounds supplied.
+    pub fn random_range(min: f64, max: f64) -> Self {
+        Vec3::new(
+            crate::random_f64_range(min, max),
+            crate::random_f64_range(min, max),
+            crate::random_f64_range(min, max),
+        )
+    }
+
+    /// Generate a unit vector with random direction.
+    pub fn random_unit_vector() -> Self {
+        // loop {
+        //     let p = Vec3::random_range(-1.0, 1.0);
+        //     let lensq = p.length_squared();
+        //     if lensq <= 1.0 {
+        //         break p / lensq.sqrt();
+        //     }
+        // }
+
+        Vec3::random().unit_vector()
+    }
+
+    /// Generate a unit vector in the hemisphere of the unit sphere defined by the given normal
+    /// vector. In other words, generate a unit vector whose dot product with the given normal
+    /// vector is at least 0.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use raytracing::math::vec3::Vec3;
+    ///
+    /// let normal = Vec3::new(0.0, 1.0, 0.0);
+    /// let vector = Vec3::random_on_hemisphere(normal);
+    ///
+    /// assert!(vector.dot(normal) >= 0.0);
+    /// ```
+    pub fn random_on_hemisphere(normal: Vec3) -> Self {
+        let on_unit_sphere = Self::random_unit_vector();
+        if on_unit_sphere.dot(normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            -on_unit_sphere
+        }
+    }
+
     /// Computes the Euclidean length of the vector.
     ///
     /// Returns the square root of the sum of the squares of the components.
