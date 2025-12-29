@@ -19,14 +19,14 @@ impl HittableList {
     }
 
     /// Create a hittable list from a single object.
-    pub fn from_hittable(object: Rc<dyn Hittable>) -> Self {
+    pub fn _from_hittable(object: Rc<dyn Hittable>) -> Self {
         Self {
             objects: vec![object],
         }
     }
 
     /// Clear the list.
-    pub fn clear(&mut self) {
+    pub fn _clear(&mut self) {
         self.objects.clear();
     }
 

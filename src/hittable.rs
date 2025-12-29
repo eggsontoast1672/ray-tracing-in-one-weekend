@@ -8,7 +8,7 @@ use raytracing::math::vec3::{Point3, Vec3};
 #[derive(Clone, Copy)]
 pub struct HitRecord {
     /// The point at which the intersection occurred.
-    pub point: Point3,
+    pub _point: Point3,
 
     /// The normal vector to the surface at the point of intersection.
     pub normal: Vec3,
