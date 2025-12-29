@@ -2,12 +2,12 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use crate::color::Color;
+use crate::color::{self, Color};
 
 /// A PPM image.
 ///
 /// Once the image is created, the dimensions cannot be changed.
-struct Image {
+pub struct Image {
     width: usize,
     height: usize,
     bytes: Box<[u8]>,
@@ -26,7 +26,7 @@ impl Image {
     }
 
     /// Return the dimensions of the image.
-    pub fn dimensions(&self) -> (usize, usize) {
+    pub fn _dimensions(&self) -> (usize, usize) {
         (self.width, self.height)
     }
 
@@ -45,10 +45,11 @@ impl Image {
         }
 
         let index = (y * self.width + x) * 3;
+        let (r, g, b) = color::as_rgb_tuple(color);
 
-        self.bytes[index] = color.r;
-        self.bytes[index + 1] = color.g;
-        self.bytes[index + 2] = color.b;
+        self.bytes[index] = r;
+        self.bytes[index + 1] = g;
+        self.bytes[index + 2] = b;
     }
 
     /// Write the image to a file.

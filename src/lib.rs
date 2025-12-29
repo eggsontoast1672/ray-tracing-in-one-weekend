@@ -1,5 +1,5 @@
+pub mod camera;
 pub mod math;
-pub mod real_camera;
 pub mod ui;
 
 pub const TARGET_ASPECT_RATIO: f64 = 16.0 / 9.0;
