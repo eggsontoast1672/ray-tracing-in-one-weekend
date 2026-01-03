@@ -1,4 +1,4 @@
-use crate::math::vec3::{Point3, Vec3};
+use crate::math::{Point3, Vec3};
 
 /// Represents a ray.
 ///
@@ -18,8 +18,8 @@ impl Ray {
     /// not have much use.
     pub const fn zero() -> Self {
         Self {
-            origin: Point3::zero(),
-            direction: Vec3::zero(),
+            origin: Point3::ZERO,
+            direction: Vec3::ZERO,
         }
     }
 

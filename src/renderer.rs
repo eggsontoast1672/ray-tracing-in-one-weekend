@@ -1,16 +1,52 @@
+use raytracing::camera::Camera;
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
-use raytracing::math::vec3::Vec3;
-use raytracing::camera::Camera;
+use raytracing::math::Vec3;
+use raytracing::ui;
 
 use crate::color::Color;
 use crate::hittable::Hittable;
 use crate::image::Image;
 
-fn get_pixel_color(ray: Ray, scene: &dyn Hittable) -> Color {
-    if let Some(hit) = scene.hit(ray, Interval::new(0.0, f64::INFINITY)) {
+struct Renderer {
+
+}
+
+/// Get a random vector in the `[-0.5, 0.5]^2` product space.
+fn sample_square() -> Vec3 {
+    Vec3::new(
+        raytracing::random_f64() - 0.5,
+        raytracing::random_f64() - 0.5,
+        0.0,
+    )
+}
+
+fn get_ray(
+    x: usize,
+    y: usize,
+    viewport_delta_u: Vec3,
+    viewport_delta_v: Vec3,
+    start_pos: Vec3,
+    eye: Vec3,
+) -> Ray {
+    let offset = sample_square();
+
+    let current_delta_u = viewport_delta_u * (x as f64 + offset.x);
+    let current_delta_v = viewport_delta_v * (y as f64 + offset.y);
+    let pixel_center = start_pos + current_delta_u + current_delta_v;
+    Ray::new(eye, pixel_center - eye)
+}
+
+fn get_pixel_color(ray: Ray, depth: i32, scene: &dyn Hittable) -> Color {
+    const EPSILON: f64 = 0.001;
+
+    if depth <= 0 {
+        return Color::ZERO;
+    }
+
+    if let Some(hit) = scene.hit(ray, Interval::new(EPSILON, f64::INFINITY)) {
         let direction = Vec3::random_on_hemisphere(hit.normal);
-        get_pixel_color(Ray::new(hit.point, direction), scene) * 0.5
+        get_pixel_color(Ray::new(hit.point, direction), depth - 1, scene) * 0.5
     } else {
         let direction = ray.direction.unit_vector();
         let intensity = (direction.y + 1.0) * 0.5;
@@ -35,21 +71,34 @@ pub fn render_scene(camera: Camera, scene: &dyn Hittable) -> Image {
 
     let start_pos = viewport_upper_left + (viewport_delta_u + viewport_delta_v) / 2.0;
 
+    let pixel_samples_scale = 1.0 / raytracing::SAMPLES_PER_PIXEL as f64;
+
     let mut image = Image::blank(raytracing::IMAGE_WIDTH, raytracing::IMAGE_HEIGHT);
 
-    for y in 0..raytracing::IMAGE_HEIGHT {
-        for x in 0..raytracing::IMAGE_WIDTH {
-            // Cast a ray toward the scene... but what ray?
-            // Cast it toward a position in the viewport.
-            let current_delta_u = viewport_delta_u * x as f64;
-            let current_delta_v = viewport_delta_v * y as f64;
-            let pixel_center = start_pos + current_delta_u + current_delta_v;
-            let ray = Ray::new(camera.position, pixel_center - camera.position);
-            let color = get_pixel_color(ray, scene);
+    let one_percent = 1.0 / raytracing::IMAGE_HEIGHT as f64;
 
-            image.set_pixel(x, y, color);
+    for y in 0..raytracing::IMAGE_HEIGHT {
+        ui::update(y as f64 * one_percent);
+
+        for x in 0..raytracing::IMAGE_WIDTH {
+            let mut color = Color::ZERO;
+            for _ in 0..raytracing::SAMPLES_PER_PIXEL {
+                let ray = get_ray(
+                    x,
+                    y,
+                    viewport_delta_u,
+                    viewport_delta_v,
+                    start_pos,
+                    camera.position,
+                );
+                color += get_pixel_color(ray, raytracing::MAX_DEPTH, scene);
+            }
+
+            image.set_pixel(x, y, color * pixel_samples_scale);
         }
     }
+
+    ui::finish();
 
     image
 }

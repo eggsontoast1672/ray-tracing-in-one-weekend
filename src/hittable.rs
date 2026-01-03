@@ -1,6 +1,6 @@
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
-use raytracing::math::vec3::{Point3, Vec3};
+use raytracing::math::{Point3, Vec3};
 
 /// Represents the intersection of a ray with a shape.
 ///

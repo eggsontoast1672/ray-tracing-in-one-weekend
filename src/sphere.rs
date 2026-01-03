@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
-use raytracing::math::vec3::Point3;
+use raytracing::math::Point3;
 
 use crate::hittable::{HitRecord, Hittable};
 
