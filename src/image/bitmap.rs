@@ -2,6 +2,9 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+use crate::color::{self, Color};
+use crate::image::Image;
+
 pub struct BitmapImage {
     width: u16,
     height: u16,
@@ -25,17 +28,6 @@ impl BitmapImage {
         let unpadded = width as isize * 3;
         let padded = unpadded + (-unpadded).rem_euclid(4);
         padded as usize
-    }
-
-    /// Create a new bitmap image.
-    pub fn new(width: u16, height: u16) -> Self {
-        let data_size = Self::bytes_per_row(width) * height as usize;
-
-        Self {
-            width,
-            height,
-            pixel_data: vec![0; data_size].into_boxed_slice(),
-        }
     }
 
     /// Return the size of the file required to contain this image.
@@ -69,12 +61,37 @@ impl BitmapImage {
 
         Ok(())
     }
+}
 
-    /// Export the image to a file.
-    pub fn export<P>(&self, path: P) -> std::io::Result<()>
-    where
-        P: AsRef<Path>,
-    {
+impl Image for BitmapImage {
+    fn blank(width: u16, height: u16) -> Self {
+        let data_size = Self::bytes_per_row(width) * height as usize;
+        let pixel_data = vec![0; data_size].into_boxed_slice();
+
+        Self {
+            width,
+            height,
+            pixel_data,
+        }
+    }
+
+    fn set_pixel(&mut self, x: u16, y: u16, color: Color) {
+        if x >= self.width {
+            panic!("the x is {} but the width is {}", x, self.width);
+        } else if y >= self.height {
+            panic!("the y is {} but the height is {}", y, self.height);
+        }
+
+        let index = y as usize * Self::bytes_per_row(self.width) + x as usize * 3;
+        let (r, g, b) = color::as_rgb_tuple(color);
+
+        // We write the bytes in reverse order since the colors are stored in little endian format.
+        self.pixel_data[index] = b;
+        self.pixel_data[index + 1] = g;
+        self.pixel_data[index + 2] = r;
+    }
+
+    fn export<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
         let mut file = File::create(path)?;
 
         self.write_header(&mut file)?;

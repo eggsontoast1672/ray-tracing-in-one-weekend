@@ -38,7 +38,7 @@ impl Image for PixmapImage {
     }
 
     fn export<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
-        let mut file = std::fs::File::open(path)?;
+        let mut file = std::fs::File::create(path)?;
 
         writeln!(file, "P3\n{} {}\n255", self.width, self.height)?;
 

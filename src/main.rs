@@ -3,7 +3,7 @@ use std::rc::Rc;
 use raytracing::camera::Camera;
 use raytracing::color::Color;
 use raytracing::image::Image;
-use raytracing::image::pixmap::PixmapImage;
+use raytracing::image::bitmap::BitmapImage;
 use raytracing::math::{Point3, Vec3};
 
 use crate::hittable_list::HittableList;
@@ -61,6 +61,6 @@ fn main() -> std::io::Result<()> {
         world
     };
 
-    let image: PixmapImage = renderer::render_scene(camera, &world);
+    let image: BitmapImage = renderer::render_scene(camera, &world);
     image.export("image.ppm")
 }
