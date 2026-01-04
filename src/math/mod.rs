@@ -66,7 +66,7 @@ impl Vec3 {
     /// # Examples
     ///
     /// ```
-    /// use raytracing::math::vec3::Vec3;
+    /// use raytracing::math::Vec3;
     ///
     /// let normal = Vec3::new(0.0, 1.0, 0.0);
     /// let vector = Vec3::random_on_hemisphere(normal);
@@ -128,6 +128,26 @@ impl Vec3 {
     /// vector. It is equivalent to this vector scaled down by its length.
     pub fn unit_vector(self) -> Vec3 {
         self / self.length()
+    }
+
+    /// Return true if this vector is sufficiently close to the zero vector, i.e. all components
+    /// are within some small `epsilon` of zero.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use raytracing::math::Vec3;
+    ///
+    /// const SMALL: f64 = 1e-160;
+    ///
+    /// assert!(Vec3::new(0.0, 0.0, 0.0).is_near_zero());
+    /// assert!(Vec3::new(SMALL, SMALL, SMALL).is_near_zero());
+    /// assert!(!Vec3::new(1.0, 2.0, 3.0).is_near_zero());
+    /// ```
+    pub fn is_near_zero(&self) -> bool {
+        const EPSILON: f64 = 1e-8;
+
+        self.x.abs() < EPSILON && self.y.abs() < EPSILON && self.z.abs() < EPSILON
     }
 }
 
@@ -211,3 +231,8 @@ impl std::fmt::Display for Vec3 {
 
 /// Type alias for a 3D point.
 pub type Point3 = Vec3;
+
+/// Reflect a vector specularly about a normal vector.
+pub fn reflect(vector: Vec3, normal: Vec3) -> Vec3 {
+    vector - normal * 2.0 * vector.dot(normal)
+}

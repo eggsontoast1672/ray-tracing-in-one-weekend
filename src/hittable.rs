@@ -1,17 +1,24 @@
+use std::rc::Rc;
+
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
 use raytracing::math::{Point3, Vec3};
 
+use crate::renderer::material::Material;
+
 /// Represents the intersection of a ray with a shape.
 ///
 /// When a ray collides with a shape, this information is the relevant data for the intersection.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
     /// The point at which the intersection occurred.
     pub point: Point3,
 
     /// The normal vector to the surface at the point of intersection.
     pub normal: Vec3,
+
+    /// The material of the hit.
+    pub material: Rc<dyn Material>,
 
     /// The value of t for which the ray intersected the surface.
     pub time: f64,

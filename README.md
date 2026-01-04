@@ -51,3 +51,16 @@ P3
 255 255 255
   0   0   0
 ```
+
+## Bitmap Format
+
+- Bitmap file header (general information)
+- DIB header (defines pixel format)
+- Image data
+
+- Magic number 0x42 0x4D
+- Size of entire file in bytes (little endian, including header)
+- Four reserved bytes (typically 0)
+- Offset of image data in bytes
+- Each row of the image must be 4-byte aligned
+- Bytes of image data are little endian (BGR instead of RGB)

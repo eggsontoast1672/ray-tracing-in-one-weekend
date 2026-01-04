@@ -42,7 +42,10 @@ impl Hittable for HittableList {
 
         let mut closest_hit: Option<HitRecord> = None;
         for object in &self.objects {
-            let closest_t = closest_hit.map(|rec| rec.time).unwrap_or(interval.max);
+            let closest_t = closest_hit
+                .as_ref()
+                .map(|rec| rec.time)
+                .unwrap_or(interval.max);
             let smallest_interval = Interval::new(interval.min, closest_t);
 
             // There is no need to trace the ray further than this value of t, since it already hit

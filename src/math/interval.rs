@@ -36,7 +36,7 @@ impl Interval {
     /// Get the size of the interval.
     ///
     /// This method retrieves the size of this interval. The size is positive if `self.min <
-    /// self.max` and is negative if `self.min > self.max`. 
+    /// self.max` and is negative if `self.min > self.max`.
     pub fn size(&self) -> f64 {
         self.max - self.min
     }

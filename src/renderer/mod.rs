@@ -1,16 +1,14 @@
 use raytracing::camera::Camera;
+use raytracing::color::Color;
+use raytracing::image::Image;
+use raytracing::math::Vec3;
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
-use raytracing::math::Vec3;
 use raytracing::ui;
 
-use crate::color::Color;
 use crate::hittable::Hittable;
-use crate::image::Image;
 
-struct Renderer {
-
-}
+pub mod material;
 
 /// Get a random vector in the `[-0.5, 0.5]^2` product space.
 fn sample_square() -> Vec3 {
@@ -22,8 +20,8 @@ fn sample_square() -> Vec3 {
 }
 
 fn get_ray(
-    x: usize,
-    y: usize,
+    x: u16,
+    y: u16,
     viewport_delta_u: Vec3,
     viewport_delta_v: Vec3,
     start_pos: Vec3,
@@ -45,18 +43,30 @@ fn get_pixel_color(ray: Ray, depth: i32, scene: &dyn Hittable) -> Color {
     }
 
     if let Some(hit) = scene.hit(ray, Interval::new(EPSILON, f64::INFINITY)) {
-        let direction = Vec3::random_on_hemisphere(hit.normal);
-        get_pixel_color(Ray::new(hit.point, direction), depth - 1, scene) * 0.5
-    } else {
-        let direction = ray.direction.unit_vector();
-        let intensity = (direction.y + 1.0) * 0.5;
-        Color::new(1.0, 1.0, 1.0) * (1.0 - intensity) + Color::new(0.5, 0.7, 1.0) * intensity
+        return if let Some(scattered) = hit.clone().material.scatter(ray, hit) {
+            let next_color = get_pixel_color(scattered.ray, depth - 1, scene);
+
+            Color::new(
+                scattered.attenuation.x * next_color.x,
+                scattered.attenuation.y * next_color.y,
+                scattered.attenuation.z * next_color.z,
+            )
+        } else {
+            Color::ZERO
+        };
     }
+
+    let direction = ray.direction.unit_vector();
+    let intensity = (direction.y + 1.0) * 0.5;
+    Color::new(1.0, 1.0, 1.0) * (1.0 - intensity) + Color::new(0.5, 0.7, 1.0) * intensity
 }
 
 /// Render the scene to an image.
 #[must_use]
-pub fn render_scene(camera: Camera, scene: &dyn Hittable) -> Image {
+pub fn render_scene<I>(camera: Camera, scene: &dyn Hittable) -> I
+where
+    I: Image,
+{
     let viewport_u = Vec3::new(camera.viewport_width, 0.0, 0.0);
     let viewport_v = Vec3::new(0.0, -camera.viewport_height, 0.0);
 
@@ -73,7 +83,7 @@ pub fn render_scene(camera: Camera, scene: &dyn Hittable) -> Image {
 
     let pixel_samples_scale = 1.0 / raytracing::SAMPLES_PER_PIXEL as f64;
 
-    let mut image = Image::blank(raytracing::IMAGE_WIDTH, raytracing::IMAGE_HEIGHT);
+    let mut image = I::blank(raytracing::IMAGE_WIDTH, raytracing::IMAGE_HEIGHT);
 
     let one_percent = 1.0 / raytracing::IMAGE_HEIGHT as f64;
 

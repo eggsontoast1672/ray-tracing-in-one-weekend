@@ -1,3 +1,3 @@
 #!/bin/sh
 
-cargo run && ./display.sh
+cargo run && scripts/display.sh

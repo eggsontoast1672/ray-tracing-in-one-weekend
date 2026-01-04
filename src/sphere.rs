@@ -1,10 +1,12 @@
 use std::cmp::Ordering;
+use std::rc::Rc;
 
+use raytracing::math::Point3;
 use raytracing::math::interval::Interval;
 use raytracing::math::ray::Ray;
-use raytracing::math::Point3;
 
 use crate::hittable::{HitRecord, Hittable};
+use crate::renderer::material::Material;
 
 /// Represents a ray traceable sphere.
 ///
@@ -12,10 +14,11 @@ use crate::hittable::{HitRecord, Hittable};
 /// that. I just wanted to fill up the doc comment with something. The radius should ideally never
 /// be negative, but that can be easily circumvented by just setting the radius field to something
 /// negative.
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Sphere {
@@ -24,13 +27,14 @@ impl Sphere {
     /// This function creates a new sphere with the given center and radius. The radius is either
     /// negative or not comperable to 0 (e.g. infinity or NaN), then the radius is initialized to
     /// 0.
-    pub fn new(center: Point3, radius: f64) -> Self {
+    pub fn new(center: Point3, radius: f64, material: Rc<dyn Material>) -> Self {
         Self {
             center,
             radius: match radius.partial_cmp(&0.0) {
                 Some(Ordering::Greater) => radius,
                 _ => 0.0,
             },
+            material,
         }
     }
 }
@@ -64,6 +68,7 @@ impl Hittable for Sphere {
         let mut record = HitRecord {
             point: hit_point,
             normal: (hit_point - self.center) / self.radius,
+            material: self.material.clone(),
             time: root,
             front_face: false,
         };
